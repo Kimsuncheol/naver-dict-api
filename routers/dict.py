@@ -17,7 +17,7 @@ def list_dict_types():
 @router.get("/search")
 def search(
     query: str = Query(..., description="Word or character to search"),
-    dict_type: str = Query("hanja", description="Dictionary type (e.g. korean, english, japanese, hanja)"),
+    dict_type: str = Query("english", description="Dictionary type (e.g. korean, english, japanese, hanja)"),
     search_mode: str = Query("simple", description="Search mode: simple or detailed"),
 ):
     try:
