@@ -1,5 +1,9 @@
 from fastapi import APIRouter, HTTPException, Query
-from naver_dict_api import NaverDictError
+try:
+    from naver_dict_api import NaverDictError
+except ModuleNotFoundError:
+    class NaverDictError(Exception):
+        pass
 from services.dict import get_dict_types, lookup
 
 router = APIRouter(prefix="/dict", tags=["dictionary"])
@@ -17,6 +21,13 @@ def search(
     search_mode: str = Query("simple", description="Search mode: simple or detailed"),
 ):
     try:
+                # If the external dependency is missing, the service layer will usually
+        # fail as well. This keeps the API response clearer than an import-time crash.
+        if NaverDictError is Exception:
+            raise HTTPException(
+                status_code=500,
+                detail="Missing dependency: install the package that provides `naver_dict_api` before using /dict/search.",
+            )
         entry = lookup(query, dict_type, search_mode)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
